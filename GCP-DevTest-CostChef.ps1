@@ -5,7 +5,7 @@
     🍳 CloudCostChefs Dev/Test Resource Cost Chef – GCP Edition
 
 .DESCRIPTION
-    This PowerShell recipe scans your GCP project for resources tagged as dev/test
+    This PowerShell recipe scans your GCP project for resources labeled as dev/test
     and serves up a multi-course report highlighting cost optimizations:
       • Cloud SQL instances running production-grade sizes (time to downsize!)
       • Compute Engine instances missing stop/start automation labels (idle compute bills lurking)
@@ -83,158 +83,7 @@ catch {
 }
 
 # Set project if specified, otherwise use current
-if ($CloudSQLResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Instance Name</th><th>Tier</th><th>Database Version</th><th>State</th><th>Region</th><th>Disk Size (GB)</th><th>Disk Type</th><th>Labels</th></tr>"
-    foreach ($result in $CloudSQLResults) {
-        $htmlContent += "<tr><td>$($result.InstanceName)</td><td class='warning'>$($result.Tier)</td><td>$($result.DatabaseVersion)</td><td>$($result.State)</td><td>$($result.Region)</td><td>$($result.DiskSize)</td><td>$($result.DiskType)</td><td>$($result.Labels)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ Excellent! All dev/test Cloud SQL instances are using appropriate sizes.</p>"
-}
-
-$htmlContent += "<h2>🖥️ Compute Engine Instances Missing Automation Labels</h2>"
-
-if ($ComputeEngineResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Instance Name</th><th>Machine Type</th><th>Status</th><th>Zone</th><th>Created</th><th>Labels</th></tr>"
-    foreach ($result in $ComputeEngineResults) {
-        $htmlContent += "<tr><td>$($result.InstanceName)</td><td>$($result.MachineType)</td><td>$($result.Status)</td><td>$($result.Zone)</td><td>$($result.CreationTimestamp)</td><td>$($result.Labels)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ All dev/test Compute Engine instances have automation labels configured!</p>"
-}
-
-$htmlContent += "<h2>🍖 Oversized Compute Engine Instances for Dev/Test</h2>"
-
-if ($OversizedComputeResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Instance Name</th><th>Machine Type</th><th>Status</th><th>Zone</th><th>Created</th><th>Labels</th></tr>"
-    foreach ($result in $OversizedComputeResults) {
-        $htmlContent += "<tr><td>$($result.InstanceName)</td><td class='warning'>$($result.MachineType)</td><td>$($result.Status)</td><td>$($result.Zone)</td><td>$($result.CreationTimestamp)</td><td>$($result.Labels)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ No oversized Compute Engine instances found in dev/test environments!</p>"
-}
-
-$htmlContent += "<h2>💽 Unattached Persistent Disks</h2>"
-
-if ($UnattachedDiskResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Disk Name</th><th>Size (GB)</th><th>Type</th><th>Zone</th><th>Status</th><th>Created</th><th>Labels</th></tr>"
-    foreach ($result in $UnattachedDiskResults) {
-        $htmlContent += "<tr><td>$($result.DiskName)</td><td>$($result.SizeGB)</td><td>$($result.DiskType)</td><td>$($result.Zone)</td><td>$($result.Status)</td><td>$($result.CreationTimestamp)</td><td>$($result.Labels)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ No unattached persistent disks found!</p>"
-}
-
-$htmlContent += "<h2>🌐 Unused Static IP Addresses</h2>"
-
-if ($UnusedIPResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Address Name</th><th>IP Address</th><th>Type</th><th>Status</th><th>Region</th><th>Created</th><th>Labels</th></tr>"
-    foreach ($result in $UnusedIPResults) {
-        $htmlContent += "<tr><td>$($result.AddressName)</td><td>$($result.Address)</td><td>$($result.AddressType)</td><td>$($result.Status)</td><td>$($result.Region)</td><td>$($result.CreationTimestamp)</td><td>$($result.Labels)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ No unused static IP addresses found!</p>"
-}
-
-$htmlContent += "<h2>🔄 Cloud Memorystore Premium Tiers</h2>"
-
-if ($MemorystoreResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Instance Name</th><th>Tier</th><th>Memory (GB)</th><th>Redis Version</th><th>State</th><th>Region</th><th>Labels</th></tr>"
-    foreach ($result in $MemorystoreResults) {
-        $htmlContent += "<tr><td>$($result.InstanceName)</td><td class='warning'>$($result.Tier)</td><td>$($result.MemorySizeGb)</td><td>$($result.RedisVersion)</td><td>$($result.State)</td><td>$($result.Region)</td><td>$($result.Labels)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ All Cloud Memorystore instances are using appropriate tiers!</p>"
-}
-
-$htmlContent += "<h2>⚖️ Load Balancers with No Backends</h2>"
-
-if ($LoadBalancerResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Forwarding Rule</th><th>Target</th><th>Target Type</th><th>IP Address</th><th>Port Range</th><th>Region</th><th>Labels</th></tr>"
-    foreach ($result in $LoadBalancerResults) {
-        $htmlContent += "<tr><td>$($result.ForwardingRuleName)</td><td>$($result.Target)</td><td>$($result.TargetType)</td><td>$($result.IPAddress)</td><td>$($result.PortRange)</td><td>$($result.Region)</td><td>$($result.Labels)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ All load balancers have active backends!</p>"
-}
-
-$htmlContent += "<h2>🔓 Permissive Firewall Rules</h2>"
-
-if ($FirewallResults.Count -gt 0) {
-    $htmlContent += "<table><tr><th>Rule Name</th><th>Priority</th><th>Source Ranges</th><th>Allowed Ports</th><th>Target Tags</th><th>Network</th><th>Created</th></tr>"
-    foreach ($result in $FirewallResults) {
-        $htmlContent += "<tr><td>$($result.RuleName)</td><td>$($result.Priority)</td><td class='warning'>$($result.SourceRanges)</td><td class='warning'>$($result.AllowedPorts)</td><td>$($result.TargetTags)</td><td>$($result.Network)</td><td>$($result.CreationTimestamp)</td></tr>"
-    }
-    $htmlContent += "</table>"
-} else {
-    $htmlContent += "<p>✅ No overly permissive firewall rules found!</p>"
-}
-
-$htmlContent += @"
-        <h2>🍽️ Chef's GCP Cost-Saving Recommendations</h2>
-        <ul>
-            <li><strong>🔽 Cloud SQL Right-Sizing:</strong> Switch to db-f1-micro, db-g1-small, or db-custom-1-3840 for dev/test databases—production power isn't needed for testing recipes.</li>
-            <li><strong>⏱️ Compute Engine Auto-Shutdown:</strong> Label instances with automation schedules to stop after hours—your GCP bill will thank you for turning off the oven.</li>
-            <li><strong>📏 Compute Right-Sizing:</strong> Use e2-micro, e2-small, f1-micro, or g1-small for dev/test—no need for large servings when a small plate will do.</li>
-            <li><strong>💽 Persistent Disk Cleanup:</strong> Delete unattached disks—these orphaned ingredients are still charging you storage fees.</li>
-            <li><strong>🌐 Release Static IPs:</strong> Return unused static IPs to GCP—each idle IP costs money when not attached to resources.</li>
-            <li><strong>🔄 Memorystore Downsizing:</strong> Use BASIC tier instead of STANDARD_HA for testing—premium caching is overkill for dev environments.</li>
-            <li><strong>⚖️ Load Balancer Cleanup:</strong> Remove load balancers with no backends—empty serving trays cost money without providing value.</li>
-            <li><strong>🔒 Firewall Rule Tightening:</strong> Close unnecessary 0.0.0.0/0 rules—keep your dev kitchen secure without leaving doors wide open.</li>
-            <li><strong>💰 Committed Use Discounts:</strong> Consider CUDs for long-running dev/test workloads to save 20-57% on compute costs.</li>
-            <li><strong>📊 Cost Budgets:</strong> Set up GCP Budget alerts to catch cost spikes before they burn your wallet.</li>
-            <li><strong>🏷️ Preemptible Instances:</strong> Use preemptible VMs for fault-tolerant dev/test workloads to save up to 80%.</li>
-        </ul>
-        
-        <div class='footer'>
-            <p>Generated on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | Project: $Project</p>
-            <p>🍳 CloudCostChefs - Serving up GCP savings, one resource at a time</p>
-        </div>
-    </div>
-</body>
-</html>
-"@
-
-$htmlContent | Out-File -FilePath $htmlPath -Encoding UTF8
-Write-Host "HTML report saved to: $htmlPath" -ForegroundColor Green
-
-# Summary output
-Write-Host "`n🍳 GCP Dev/Test Scan Complete!" -ForegroundColor Green
-Write-Host "Summary:" -ForegroundColor Yellow
-Write-Host "- Cloud SQL instances with production sizes: $($CloudSQLResults.Count)"
-Write-Host "- Compute Engine instances missing automation labels: $($ComputeEngineResults.Count)"
-Write-Host "- Oversized Compute Engine instances: $($OversizedComputeResults.Count)"
-Write-Host "- Unattached persistent disks: $($UnattachedDiskResults.Count)"
-Write-Host "- Unused static IP addresses: $($UnusedIPResults.Count)"
-Write-Host "- Premium Memorystore instances: $($MemorystoreResults.Count)"
-Write-Host "- Empty load balancers: $($LoadBalancerResults.Count)"
-Write-Host "- Permissive firewall rules: $($FirewallResults.Count)"
-
-$totalIssues = $CloudSQLResults.Count + $ComputeEngineResults.Count + $OversizedComputeResults.Count + 
-               $UnattachedDiskResults.Count + $UnusedIPResults.Count + 
-               $MemorystoreResults.Count + $LoadBalancerResults.Count + $FirewallResults.Count
-
-if ($totalIssues -gt 0) {
-    Write-Host "`nTotal cost optimization opportunities found: $totalIssues" -ForegroundColor Yellow
-    Write-Host "Chef's Tip: Review the detailed reports and start cooking up some serious GCP savings!" -ForegroundColor Yellow
-} else {
-    Write-Host "`n🎉 Your GCP dev/test kitchen is perfectly optimized—no waste detected!" -ForegroundColor Green
-}
-
-# Open HTML report
-try {
-    Start-Process $htmlPath
-    Write-Host "Opening HTML report in default browser..." -ForegroundColor Cyan
-} catch {
-    Write-Host "Could not auto-open HTML report. Please open manually: $htmlPath" -ForegroundColor Yellow
-}Project) {
+if ($Project) {
     & gcloud config set project $Project 2>$null
 } else {
     $Project = & gcloud config get-value project 2>$null
@@ -724,4 +573,105 @@ $htmlContent = @"
         <h2>🗄️ Cloud SQL Instances Using Production-Grade Sizes</h2>
 "@
 
-if ($
+if ($CloudSQLResults.Count -gt 0) {
+    $htmlContent += "</table>"
+} else {
+    $htmlContent += "<p>✅ No unused static IP addresses found!</p>"
+}
+
+$htmlContent += "<h2>🔄 Cloud Memorystore Premium Tiers</h2>"
+
+if ($MemorystoreResults.Count -gt 0) {
+    $htmlContent += "<table><tr><th>Instance Name</th><th>Tier</th><th>Memory (GB)</th><th>Redis Version</th><th>State</th><th>Region</th><th>Labels</th></tr>"
+    foreach ($result in $MemorystoreResults) {
+        $htmlContent += "<tr><td>$($result.InstanceName)</td><td class='warning'>$($result.Tier)</td><td>$($result.MemorySizeGb)</td><td>$($result.RedisVersion)</td><td>$($result.State)</td><td>$($result.Region)</td><td>$($result.Labels)</td></tr>"
+    }
+    $htmlContent += "</table>"
+} else {
+    $htmlContent += "<p>✅ All Cloud Memorystore instances are using appropriate tiers!</p>"
+}
+
+$htmlContent += "<h2>⚖️ Load Balancers with No Backends</h2>"
+
+if ($LoadBalancerResults.Count -gt 0) {
+    $htmlContent += "<table><tr><th>Forwarding Rule</th><th>Target</th><th>Target Type</th><th>IP Address</th><th>Port Range</th><th>Region</th><th>Labels</th></tr>"
+    foreach ($result in $LoadBalancerResults) {
+        $htmlContent += "<tr><td>$($result.ForwardingRuleName)</td><td>$($result.Target)</td><td>$($result.TargetType)</td><td>$($result.IPAddress)</td><td>$($result.PortRange)</td><td>$($result.Region)</td><td>$($result.Labels)</td></tr>"
+    }
+    $htmlContent += "</table>"
+} else {
+    $htmlContent += "<p>✅ All load balancers have active backends!</p>"
+}
+
+$htmlContent += "<h2>🔓 Permissive Firewall Rules</h2>"
+
+if ($FirewallResults.Count -gt 0) {
+    $htmlContent += "<table><tr><th>Rule Name</th><th>Priority</th><th>Source Ranges</th><th>Allowed Ports</th><th>Target Tags</th><th>Network</th><th>Created</th></tr>"
+    foreach ($result in $FirewallResults) {
+        $htmlContent += "<tr><td>$($result.RuleName)</td><td>$($result.Priority)</td><td class='warning'>$($result.SourceRanges)</td><td class='warning'>$($result.AllowedPorts)</td><td>$($result.TargetTags)</td><td>$($result.Network)</td><td>$($result.CreationTimestamp)</td></tr>"
+    }
+    $htmlContent += "</table>"
+} else {
+    $htmlContent += "<p>✅ No overly permissive firewall rules found!</p>"
+}
+
+$htmlContent += @"
+        <h2>🍽️ Chef's GCP Cost-Saving Recommendations</h2>
+        <ul>
+            <li><strong>🔽 Cloud SQL Right-Sizing:</strong> Switch to db-f1-micro, db-g1-small, or db-custom-1-3840 for dev/test databases—production power isn't needed for testing recipes.</li>
+            <li><strong>⏱️ Compute Engine Auto-Shutdown:</strong> Label instances with automation schedules to stop after hours—your GCP bill will thank you for turning off the oven.</li>
+            <li><strong>📏 Compute Right-Sizing:</strong> Use e2-micro, e2-small, f1-micro, or g1-small for dev/test—no need for large servings when a small plate will do.</li>
+            <li><strong>💽 Persistent Disk Cleanup:</strong> Delete unattached disks—these orphaned ingredients are still charging you storage fees.</li>
+            <li><strong>🌐 Release Static IPs:</strong> Return unused static IPs to GCP—each idle IP costs money when not attached to resources.</li>
+            <li><strong>🔄 Memorystore Downsizing:</strong> Use BASIC tier instead of STANDARD_HA for testing—premium caching is overkill for dev environments.</li>
+            <li><strong>⚖️ Load Balancer Cleanup:</strong> Remove load balancers with no backends—empty serving trays cost money without providing value.</li>
+            <li><strong>🔒 Firewall Rule Tightening:</strong> Close unnecessary 0.0.0.0/0 rules—keep your dev kitchen secure without leaving doors wide open.</li>
+            <li><strong>💰 Committed Use Discounts:</strong> Consider CUDs for long-running dev/test workloads to save 20-57% on compute costs.</li>
+            <li><strong>📊 Cost Budgets:</strong> Set up GCP Budget alerts to catch cost spikes before they burn your wallet.</li>
+            <li><strong>🏷️ Preemptible Instances:</strong> Use preemptible VMs for fault-tolerant dev/test workloads to save up to 80%.</li>
+        </ul>
+        
+        <div class='footer'>
+            <p>Generated on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | Project: $Project</p>
+            <p>🍳 CloudCostChefs - Serving up GCP savings, one resource at a time</p>
+        </div>
+    </div>
+</body>
+</html>
+"@
+
+$htmlContent | Out-File -FilePath $htmlPath -Encoding UTF8
+Write-Host "HTML report saved to: $htmlPath" -ForegroundColor Green
+
+# Summary output
+Write-Host "`n🍳 GCP Dev/Test Scan Complete!" -ForegroundColor Green
+Write-Host "Summary:" -ForegroundColor Yellow
+Write-Host "- Cloud SQL instances with production sizes: $($CloudSQLResults.Count)"
+Write-Host "- Compute Engine instances missing automation labels: $($ComputeEngineResults.Count)"
+Write-Host "- Oversized Compute Engine instances: $($OversizedComputeResults.Count)"
+Write-Host "- Unattached persistent disks: $($UnattachedDiskResults.Count)"
+Write-Host "- Unused static IP addresses: $($UnusedIPResults.Count)"
+Write-Host "- Premium Memorystore instances: $($MemorystoreResults.Count)"
+Write-Host "- Empty load balancers: $($LoadBalancerResults.Count)"
+Write-Host "- Permissive firewall rules: $($FirewallResults.Count)"
+
+$totalIssues = $CloudSQLResults.Count + $ComputeEngineResults.Count + $OversizedComputeResults.Count + 
+               $UnattachedDiskResults.Count + $UnusedIPResults.Count + 
+               $MemorystoreResults.Count + $LoadBalancerResults.Count + $FirewallResults.Count
+
+if ($totalIssues -gt 0) {
+    Write-Host "`nTotal cost optimization opportunities found: $totalIssues" -ForegroundColor Yellow
+    Write-Host "Chef's Tip: Review the detailed reports and start cooking up some serious GCP savings!" -ForegroundColor Yellow
+} else {
+    Write-Host "`n🎉 Your GCP dev/test kitchen is perfectly optimized—no waste detected!" -ForegroundColor Green
+}
+
+# Open HTML report
+try {
+    Start-Process $htmlPath
+    Write-Host "Opening HTML report in default browser..." -ForegroundColor Cyan
+} catch {
+    Write-Host "Could not auto-open HTML report. Please open manually: $htmlPath" -ForegroundColor Yellow
+}
+
+Write-Host "`n🍳 CloudCostChefs GCP Dev/Test Cost Chef completed successfully!" -ForegroundColor Green
