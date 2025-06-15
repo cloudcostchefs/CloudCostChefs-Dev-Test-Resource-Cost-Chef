@@ -1,5 +1,3 @@
-#Requires -Version 5.1
-
 <#
 .SYNOPSIS
     🍳 CloudCostChefs Dev/Test Resource Cost Chef – GCP Edition
