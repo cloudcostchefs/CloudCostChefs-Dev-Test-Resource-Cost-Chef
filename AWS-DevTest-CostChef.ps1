@@ -1,4 +1,4 @@
-#Requires -Modules AWS.Tools.EC2, AWS.Tools.RDS, AWS.Tools.ElastiCache, AWS.Tools.ELB, AWS.Tools.S3
+# Requires -Modules AWS.Tools.EC2, AWS.Tools.RDS, AWS.Tools.ElastiCache, AWS.Tools.ELB, AWS.Tools.S3
 
 <#
 .SYNOPSIS
